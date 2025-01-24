@@ -1,7 +1,7 @@
 from silero import *
 import librosa
 import numpy as np
-import onnxruntime as ort
+from SileroOrt import SileroOrt
 
 def stft_magnitude(input_data, n_fft=256, hop_length=128):
     """
@@ -33,27 +33,6 @@ def stft_magnitude(input_data, n_fft=256, hop_length=128):
 # audio_data, sr = librosa.load('your_audio_file.wav')
 # magnitude_spectrum = stft_magnitude(audio_data)
 
-def generate_hann_window_builtin(window_length):
-    """
-    使用numpy内置函数生成一个指定长度的汉宁窗。
-    
-    参数:
-        window_length (int): 汉宁窗的长度。
-        
-    返回:
-        np.ndarray: 指定长度的汉宁窗数组。
-    """
-    if window_length <= 0:
-        raise ValueError("窗口长度必须是正整数")
-    
-    # 使用numpy内置函数生成汉宁窗
-    hann_window = np.hanning(window_length)
-    
-    return hann_window
-
-# 示例用法：
-# window_builtin = generate_hann_window_builtin(1024)
-# print(window_builtin)
 
 if __name__ == "__main__":
     jit_model = torch.jit.load("./silero_vad.jit")
@@ -61,7 +40,7 @@ if __name__ == "__main__":
     state_dict = jit_model.state_dict()
     state_dict['_model.stft.forward_basis_buffer.weight'] = state_dict['_model.stft.forward_basis_buffer']
 
-    ort_model = ort.InferenceSession("./silero_vad.onnx", providers=["CPUExecutionProvider"])
+    ort_model = SileroOrt("./silero_vad.onnx")
 
     batch_size = 1
     sr = 16000
@@ -95,15 +74,7 @@ if __name__ == "__main__":
 
             jit_output = jit_model(input_tensor, sr)
 
-            input_tensor = torch.cat([context, input_tensor], dim=1)
-            data = stft_magnitude(input_tensor.float().numpy())
-            input_feed = {
-                "data": data,
-                "state": state
-            }
-
-            output, state = ort_model.run(None, input_feed=input_feed)
-            context = input_tensor[..., -context_size:]
+            output = ort_model(input_tensor.float().numpy())
 
             np.testing.assert_allclose(output, jit_output.numpy(), atol=1e-5)
 

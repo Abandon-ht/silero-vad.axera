@@ -14,3 +14,9 @@ python export_onnx.py
 ```
 python compare.py
 ```
+
+## 示例
+```
+python example.py
+```
+读取en.wav，生成only_speech.wav，only_speech.wav仅包含en.wav中有说话的部分

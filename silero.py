@@ -113,6 +113,7 @@ class SileroVAD(nn.Module):
         x = torch.cat([self._context, data], dim=1)
 
         x = self.stft(x)
+        print(f"stft.size() = {x.size()}")
         x = self.encoder(x)
         x, self._state = self.decoder(x, self._state)
 
@@ -193,13 +194,20 @@ if __name__ == '__main__':
     model.load_state_dict(state_dict, strict=False)
     model.reset_states()
 
+    pth_model = SileroVADModel()
+    pth_model.eval()
+    pth_model.load_state_dict(state_dict, strict=False)
+    pth_model.reset_states()
+
     for i in range(10):
         # Perform forward pass
         input_tensor = torch.randn(1, num_samples)  # Sample input (batch_size=10, feature_dim=256)
 
-        output, state = model(input_tensor, state, context)
-        context = input_tensor[..., -context_size:]
+        # output, state = model(input_tensor, state, context)
+        # context = input_tensor[..., -context_size:]
 
         jit_output = jit_model(input_tensor, sr)
 
-        print(torch.allclose(output, jit_output))
+        pth_model(input_tensor)
+
+        # print(torch.allclose(output, jit_output))

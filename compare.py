@@ -1,7 +1,6 @@
 from silero import *
 import numpy as np
 from SileroOrt import SileroOrt
-from utils_vad import stft_magnitude
 
 
 if __name__ == "__main__":
@@ -19,22 +18,6 @@ if __name__ == "__main__":
     context = torch.zeros((batch_size, context_size))
     state = np.zeros((2, batch_size, hidden_size), dtype=np.float32)
     num_samples = 512 if sr == 16000 else 256
-
-    # Compare STFT
-    stft_module = STFT()
-    stft_module.eval()
-    stft_module.forward_basis_buffer.weight.data = state_dict['_model.stft.forward_basis_buffer.weight']
-
-    with torch.no_grad():
-        input_tensor = torch.randn(1, num_samples)
-        input_tensor = torch.cat([context, input_tensor], dim=1)
-
-        stft_gt = stft_module(input_tensor)
-        stft_gt = stft_gt.numpy()
-
-        stft_np = stft_magnitude(input_tensor.numpy())
-
-        np.testing.assert_allclose(stft_np, stft_gt, atol=1e-5)
 
     # Compare PyTorch and ONNX
     with torch.no_grad():

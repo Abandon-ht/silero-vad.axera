@@ -1,7 +1,6 @@
 import librosa
 import numpy as np
 import onnxruntime as ort
-from utils_vad import stft_magnitude
 
 
 class SileroOrt:

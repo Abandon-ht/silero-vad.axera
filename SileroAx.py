@@ -1,7 +1,6 @@
 import librosa
 import numpy as np
 from axengine import InferenceSession
-from utils_vad import stft_magnitude
 
 
 class SileroAx:

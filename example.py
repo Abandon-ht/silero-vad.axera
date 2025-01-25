@@ -1,9 +1,16 @@
-from SileroOrt import SileroOrt
+BACKEND = "AX"
+if BACKEND == "AX":
+    MODEL_PATH = "../silero_vad.axmodel"
+    from SileroAx import SileroAx as Silero
+else:
+    MODEL_PATH = "../silero_vad.onnx"
+    from SileroOrt import SileroOrt as Silero
+
 from utils_vad import *
 from pprint import pprint
 
 SAMPLING_RATE = 16000
-model = SileroOrt("./silero_vad.onnx")
+model = Silero(MODEL_PATH)
 wav_path = "en.wav"
 
 """ Speech timestamps from full audio """

@@ -138,7 +138,7 @@ class SileroVADforExport(nn.Module):
     def reset_states(self, batch_size=1):
         pass
 
-    def forward(self, data, state, context):
+    def forward(self, data, state):
         # x = torch.cat([context, data], dim=1)
 
         # x = self.stft(x)
@@ -167,9 +167,9 @@ class SileroVADModelforExport(nn.Module):
         super(SileroVADModelforExport, self).__init__()
         self._model = SileroVADforExport()
 
-    def forward(self, x, state, context):
-        x, next_state = self._model(x, state, context)
-        return x.squeeze(-1).mean(), next_state
+    def forward(self, x, state):
+        x, next_state = self._model(x, state)
+        return torch.mean(x.squeeze(-1), (0,1), keepdim=True), next_state
 
     def reset_states(self, batch_size=1):
         self._model.reset_states(batch_size)

@@ -32,7 +32,7 @@ torch.onnx.export(
     onnx_model,
     export_params=True,
     opset_version=16,
-    do_constant_folding=True,
+    # do_constant_folding=True,
     input_names=["data", "state"],
     output_names=["output", "next_state"],
     dynamic_axes=None,

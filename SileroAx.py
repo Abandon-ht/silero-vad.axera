@@ -1,10 +1,10 @@
 import librosa
 import numpy as np
-import onnxruntime as ort
+from axengine import InferenceSession
 from utils_vad import stft_magnitude
 
 
-class SileroOrt:
+class SileroAx:
     def __init__(self, path: str):
         super().__init__()
 
@@ -16,7 +16,7 @@ class SileroOrt:
         self.state = np.zeros((2, self.batch_size, self.hidden_size), dtype=np.float32)
         self.num_samples = 512 if self.sr == 16000 else 256
 
-        self.model = ort.InferenceSession(path, providers=["CPUExecutionProvider"])
+        self.model = InferenceSession.load_from_model(path)
 
     def reset_states(self):
         self.context = np.zeros((self.batch_size, self.context_size), dtype=np.float32)
@@ -32,7 +32,8 @@ class SileroOrt:
             "state": self.state
         }
 
-        output, self.state = self.model.run(None, input_feed=input_feed)
+        outputs = self.model.run(None, input_feed=input_feed)
+        output, self.state = outputs["output"], outputs["next_state"]
         self.context = x[..., -self.context_size:]
 
         if len(output.shape) == 0:

@@ -15,12 +15,13 @@ context_size = 64 if sr == 16000 else 32
 context = torch.zeros(batch_size, context_size)
 state = torch.zeros(2, batch_size, hidden_size)
 num_samples = 512 if sr == 16000 else 256
+padding = 64
 
 model = SileroVADModelforExport()
 model.eval()
 model.load_state_dict(state_dict, strict=False)
 
-input_tensor = torch.rand(1, num_samples)
+input_tensor = torch.rand(1, num_samples + context_size + padding)
 stft_tensor = torch.rand(1, 129, 4)
 
 # model(input_tensor, state, context)
@@ -28,7 +29,7 @@ stft_tensor = torch.rand(1, 129, 4)
 onnx_model = "silero_vad.onnx"
 torch.onnx.export(
     model,
-    (stft_tensor, state),
+    (input_tensor, state),
     onnx_model,
     export_params=True,
     opset_version=16,

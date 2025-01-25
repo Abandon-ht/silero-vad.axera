@@ -37,8 +37,9 @@ index = 0
 for i in trange(0, wav.shape[0], num_samples):
     wavs_batch = wav[i:i+num_samples][None, ...]
     data = np.concatenate([context, wavs_batch], axis=1)
+    data = np.pad(data, ((0, 0), (0, 64)), 'reflect')
     input_feed = {
-        "data": stft_magnitude(data),
+        "data": data,
         "state": state
     }
 

@@ -29,6 +29,16 @@ class STFT(nn.Module):
 
     def forward(self, x):
         return self.transform_(x)
+    
+    def forward_export(self, x):
+        x = x.unsqueeze(1)
+        x = self.forward_basis_buffer(x)
+        cutoff = int(self.filter_length / 2 + 1)
+        real_part = x[:, :cutoff, :6]
+        imag_part = x[:, cutoff:, :6]
+
+        magnitude = torch.sqrt(real_part ** 2 + imag_part ** 2)
+        return magnitude
 
 
 class Encoder(nn.Module):
@@ -141,9 +151,9 @@ class SileroVADforExport(nn.Module):
     def forward(self, data, state):
         # x = torch.cat([context, data], dim=1)
 
-        # x = self.stft(x)
+        x = self.stft.forward_export(data)
         # print(f"stft.size() = {x.size()}")
-        x = self.encoder(data)
+        x = self.encoder(x)
         x, next_state = self.decoder.forward_export(x, state)
 
         return x, next_state

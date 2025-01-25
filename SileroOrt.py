@@ -27,8 +27,9 @@ class SileroOrt:
             x = x[None, ...]
 
         data = np.concatenate([self.context, x], axis=1)
+        data = np.pad(data, ((0, 0), (0, 64)), 'reflect')
         input_feed = {
-            "data": stft_magnitude(data),
+            "data": data,
             "state": self.state
         }
 

@@ -1,6 +1,5 @@
-import librosa
 import numpy as np
-from axengine import InferenceSession
+import axengine as axe
 
 
 class SileroAx:
@@ -15,7 +14,7 @@ class SileroAx:
         self.state = np.zeros((2, self.batch_size, self.hidden_size), dtype=np.float32)
         self.num_samples = 512 if self.sr == 16000 else 256
 
-        self.model = InferenceSession.load_from_model(path)
+        self.model = axe.InferenceSession(path)
 
     def reset_states(self):
         self.context = np.zeros((self.batch_size, self.context_size), dtype=np.float32)

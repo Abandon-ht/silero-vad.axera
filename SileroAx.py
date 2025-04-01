@@ -31,8 +31,7 @@ class SileroAx:
             "state": self.state
         }
 
-        outputs = self.model.run(input_feed=input_feed)
-        output, self.state = outputs["output"], outputs["next_state"]
+        output, self.state = self.model.run(None, input_feed=input_feed)
         self.context = x[..., -self.context_size:]
 
         if len(output.shape) == 0:

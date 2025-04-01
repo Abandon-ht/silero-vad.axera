@@ -294,6 +294,8 @@ class VADIterator:
 
 def collect_chunks(tss: List[dict],
                    wav: np.array):
+    if not tss:
+        return np.array([])
     chunks = []
     for i in tss:
         chunks.append(wav[i['start']: i['end']])
@@ -302,6 +304,8 @@ def collect_chunks(tss: List[dict],
 
 def drop_chunks(tss: List[dict],
                 wav: np.array):
+    if not tss:
+        return wav
     chunks = []
     cur_start = 0
     for i in tss:
